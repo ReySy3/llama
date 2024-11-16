@@ -190,7 +190,7 @@
       async function fetchBotResponse(userInput) {
         console.log("User Input:", userInput);
 
-        const apiUrl = `https://hazeyy-ai-models.onrender.com/llama32?content=${encodeURIComponent(userInput)}`;
+        const apiUrl = `https://cors-anywhere.herokuapp.com/https://hazeyy-ai-models.onrender.com/llama32?content=${encodeURIComponent(userInput)}`;
         console.log("API URL:", apiUrl);
 
         try {
