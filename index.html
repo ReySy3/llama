@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Haru Ai</title>
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Orbitron Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
       #particles-js {
         position: absolute;
@@ -31,7 +31,6 @@
         color: white;
         text-decoration: none;
         margin: 0 15px;
-        font-family: 'Orbitron', sans-serif;
       }
 
       nav a:hover {
@@ -66,11 +65,19 @@
         border-radius: 20px;
         word-wrap: break-word;
       }
-
-      .user-message, .bot-message {
-        font-family: 'Orbitron', sans-serif;
+      
+       .bot-message {
         background-color: transparent;
         box-shadow: none;
+        font-family: 'Orbitron', sans-serif;
+      }
+
+
+
+      .user-message, .bot-message {
+        background-color: transparent;
+        box-shadow: none;
+        font-family: 'Orbitron', sans-serif;
       }
 
       .user-input {
@@ -111,18 +118,12 @@
       .navbar-container {
         margin-bottom: 20px;
       }
-
-      pre {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 16px;
-        color: white;
-      }
     </style>
   </head>
   <body>
     <nav>
       <a href="#">LLAMA 3.1-TURBO</a>
-      <pre>made by: Haru</pre>
+      <div>made by: Haru</div>
     </nav>
     <div id="particles-js"></div>
     <div class="navbar-container"></div>
@@ -187,22 +188,28 @@
       });
 
       async function fetchBotResponse(userInput) {
+        console.log("User Input:", userInput);
+
         const apiUrl = `https://hazeyy-ai-models.onrender.com/llama32?content=${encodeURIComponent(userInput)}`;
+        console.log("API URL:", apiUrl);
+
         try {
           const response = await fetch(apiUrl, { 
             method: 'GET', 
-            headers: { 
-              'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
           });
+          console.log("API Response Status:", response.status);
 
           if (!response.ok) {
             throw new Error('API Error: ' + response.statusText);
           }
 
           const data = await response.json();
+          console.log("API Response Data:", data);
+
           return data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
         } catch (error) {
+          console.error('Error fetching data:', error);
           return `Error: ${error.message}`;
         }
       }
@@ -210,6 +217,8 @@
       async function handleSendMessage() {
         const userInput = document.getElementById("user-input").value.trim();
         if (!userInput) return;
+
+        console.log("Sending message:", userInput);
 
         const userMessage = document.createElement("div");
         userMessage.className = "message user-message";
@@ -224,6 +233,7 @@
 
         try {
           const botResponse = await fetchBotResponse(userInput);
+          console.log("Bot Response:", botResponse);
           document.getElementById("container").removeChild(loadingMessage);
 
           const botMessage = document.createElement("div");
