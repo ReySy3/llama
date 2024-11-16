@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Haru Ai</title> 
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script> 
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #particles-js {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    nav {
+      background-color: transparent;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      height: 60vh;
+      overflow-y: auto;
+      flex-grow: 1;
+      padding: 20px;
+      border-radius: 15px;
+      background-color: transparent;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .message {
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 20px;
+      word-wrap: break-word;
+    }
+
+    .user-message, .bot-message {
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    .user-input {
+      padding: 15px;
+      border: none;
+      border-radius: 13px;
+      background-color: transparent;
+      font-size: 16px;
+      color: #fff;
+      border: 1px solid #00f;
+      margin-right: 10px;
+    }
+
+    .user-input:focus {
+      outline: none;
+      border-color: #1DB954;
+    }
+
+    .send-button {
+      padding: 15px;
+      border: none;
+      background-color: transparent;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .input-container {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: transparent;
+      border-radius: 15px;
+    }
+
+    .navbar-container {
+      margin-bottom: 20px;
+    }
+  </style> 
+</head> 
+<body> 
+  <nav> 
+    <a href="#">LLAMA 3.1-TURBO</a>
+    <pre>made by: Haru</pre>
+  </nav> 
+  <div id="particles-js"></div> 
+  <div class="navbar-container"></div> 
+  <div class="container" id="container"> 
+    <div class="message bot-message">
+      Haru Lynx Ai, How can I help you today?
+    </div> 
+  </div> 
+  <div class="input-container"> 
+    <input type="text" id="user-input" class="user-input" placeholder="Type a message..."> 
+    <button id="send-button" class="send-button">Send</button> 
+  </div> 
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#1DB954" },
+        shape: {
+          type: "circle",
+          stroke: { width: 0, color: "#000000" },
+          polygon: { nb_sides: 5 }
+        },
+        opacity: {
+          value: 0.5,
+          anim: { enable: false }
+        },
+        size: {
+          value: 3,
+          random: true,
+          anim: { enable: false }
+        },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#1DB954",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 6,
+          direction: "none",
+          out_mode: "out"
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+          onclick: { enable: true, mode: "push" },
+          resize: true
+        },
+        modes: {
+          grab: { distance: 400 },
+          bubble: { distance: 400, size: 40 },
+          repulse: { distance: 200 },
+          push: { particles_nb: 4 }
+        }
+      },
+      retina_detect: true
+    });
+
+    async function fetchBotResponse(userInput) {
+      const apiUrl = `https://hazeyy-ai-models.onrender.com/llama32?content=${encodeURIComponent(userInput)}`;
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error("API Error: " + response.status);
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
+    }
+
+    async function handleSendMessage() {
+      const userInput = document.getElementById("user-input").value.trim();
+      if (!userInput) return;
+
+      const userMessage = document.createElement("div");
+      userMessage.className = "message user-message";
+      userMessage.textContent = userInput;
+      document.getElementById("container").appendChild(userMessage);
+      document.getElementById("user-input").value = "";
+
+      const loadingMessage = document.createElement("div");
+      loadingMessage.className = "message bot-message";
+      loadingMessage.textContent = "Typing...";
+      document.getElementById("container").appendChild(loadingMessage);
+
+      try {
+        const botResponse = await fetchBotResponse(userInput);
+        document.getElementById("container").removeChild(loadingMessage);
+
+        const botMessage = document.createElement("div");
+        botMessage.className = "message bot-message";
+        botMessage.textContent = botResponse;
+        document.getElementById("container").appendChild(botMessage);
+      } catch (error) {
+        document.getElementById("container").removeChild(loadingMessage);
+
+        const errorMessage = document.createElement("div");
+        errorMessage.className = "message bot-message";
+        errorMessage.textContent = `Error: ${error.message}`;
+        document.getElementById("container").appendChild(errorMessage);
+      }
+
+      document.getElementById("container").scrollTop = document.getElementById("container").scrollHeight;
+    }
+
+    document.getElementById("send-button").addEventListener("click", handleSendMessage);
+    document.getElementById("user-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") handleSendMessage();
+    });
+  </script> 
+</body>
+</html>
